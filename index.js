@@ -1,6 +1,8 @@
 const h = require('hyperscript');
+const csv = require('csv-parser');
+const fs =require('fs');
 
-var generate_page = (list) => {
+const generate_page = (list) => {
     var lines = list.map((line) => {
         return h('li', line.text, {style: {'background-color': line.color}});
     });
@@ -20,6 +22,21 @@ var generate_page = (list) => {
     
 };
 
+const pipeline = (file) => {
+    const res = [];
+    fs
+        .createReadStream(file)
+        .pipe(csv())
+        .on('data', (d) => res.push(d))
+        .on('end', ()=> {
+            const page = generate_page(res);
+            console.log(page.outerHTML);
+        });
+}
+
+pipeline(process.argv[2])
+
+/*
 var page = generate_page([{
     text: "this is the first one",
     color: 'rgb(255, 100, 0)'
@@ -27,6 +44,7 @@ var page = generate_page([{
     text: "this is the second one",
     color: 'rgb(100, 255, 0)'
 }]);
+*/
         
 
-console.log(page.outerHTML);
+            //console.log(page.outerHTML);
